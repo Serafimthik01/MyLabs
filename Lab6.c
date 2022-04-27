@@ -8,9 +8,11 @@ fill(int n, int a[])
     for(i = 0; i < n; i++)
         a[i] = rand() % 101 - 50;
 }
-void out (int a[], int n)
+void
+out(int a[], int n)
 {
-     for(i = 0; i < n; i++)
+    int i;
+    for(i = 0; i < n; i++)
         printf("%4d ", a[i]);
     printf("\n");
 }
@@ -20,7 +22,8 @@ main()
 {
     int j = 0;
     int k = 0;
-    int i; int n;
+    int i;
+    int n;
     printf("n -> ");
     scanf("%d", &n);
     srand(time(NULL));
@@ -41,8 +44,8 @@ main()
     {
         int q;
         int e;
-        q = a[j] + a[k];
-        e = a[j] * a[k];
+        q    = a[j] + a[k];
+        e    = a[j] * a[k];
         a[j] = q;
         a[k] = e;
         out(a, n);
