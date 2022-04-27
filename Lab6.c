@@ -7,8 +7,14 @@ fill(int n, int a[])
     int i;
     for(i = 0; i < n; i++)
         a[i] = rand() % 101 - 50;
-    srand(time(NULL));
 }
+void out (int a[], int n)
+{
+     for(i = 0; i < n; i++)
+        printf("%4d ", a[i]);
+    printf("\n");
+}
+
 int
 main()
 {
@@ -17,11 +23,10 @@ main()
     int i; int n;
     printf("n -> ");
     scanf("%d", &n);
+    srand(time(NULL));
     int a[n];
     fill(n, a);
-    for(i = 0; i < n; i++)
-        printf("%4d ", a[i]);
-    printf("\n");
+    out(a, n);
     int s;
     for(i = 0; i < n - 1; i++)
         for(s = i + 1; s < n; s++)
@@ -36,12 +41,11 @@ main()
     {
         int q;
         int e;
-        q    = a[j] + a[k];
-        e    = a[j] * a[k];
+        q = a[j] + a[k];
+        e = a[j] * a[k];
         a[j] = q;
         a[k] = e;
-        for(i = 0; i < n; i++)
-            printf("%4d ", a[i]);
+        out(a, n);
         printf(" \nПовторяющийся элемент%d\n", q / 2);
     }
     return 0;
