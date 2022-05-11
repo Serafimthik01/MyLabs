@@ -1,55 +1,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 void
-fill(int n, int a[])
+fill(int n, int a[n])
 {
-    int i;
-    for(i = 0; i < n; i++)
-        a[i] = rand() % 101 - 50;
+    for(int i = 0; i < n; i++)
+    {
+        a[i] = rand() % 100;
+        printf("%d ", a[i]);
+    }
 }
+
 void
-out(int a[], int n)
+rep(int n, int a[n])
 {
-    int i;
-    for(i = 0; i < n; i++)
-        printf("%4d ", a[i]);
-    printf("\n");
+    int sum = 0, pr = 1, b[n];
+    for(int i = 0; i < n; i++)
+        for(int j = i + 1; j < n; j++)
+            if(a[i] == a[j])
+            {
+                printf("i = %d    j = %d\n", i, j);
+                for(int k = i; k < j; k++)
+                {
+                    sum += a[k];
+                    pr *= a[k];
+                }
+                sum -= a[j];
+                pr /= a[j];
+                printf("sum = %d    pr = %d\n", sum, pr);
+                for(int k = 0; k < n; k++)
+                {
+                    if(k == i)
+                        b[k] = sum;
+                    else if(k == j)
+                        b[k] = pr;
+                    else
+                        b[k] = a[k];
+                    printf("%d  ", b[k]);
+                }
+            }
 }
 
 int
 main()
 {
-    int j = 0;
-    int k = 0;
-    int i;
+    srand(time(NULL));
     int n;
     printf("n -> ");
     scanf("%d", &n);
-    srand(time(NULL));
     int a[n];
     fill(n, a);
-    out(a, n);
-    int s;
-    for(i = 0; i < n - 1; i++)
-        for(s = i + 1; s < n; s++)
-            if(a[i] == a[s])
-            {
-                j = i;
-                k = s;
-            }
-    if(j == 0 && k == 0)
-        printf(" \nНет повторяющихся элементов\n");
-    else
-    {
-        int q;
-        int e;
-        q    = a[j] + a[k];
-        e    = a[j] * a[k];
-        a[j] = q;
-        a[k] = e;
-        out(a, n);
-        printf(" \nПовторяющийся элемент%d\n", q / 2);
-    }
+    printf("\n");
+    rep(n, a);
+    printf("\n");
     return 0;
 }
