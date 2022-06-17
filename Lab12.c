@@ -1,124 +1,215 @@
+// struct tm {
+//    int tm_sec;   // seconds of minutes from 0 to 61
+//    int tm_min;   // minutes of hour from 0 to 59
+//    int tm_hour;  // hours of day from 0 to 24
+//    int tm_mday;  // day of month from 1 to 317
+//    int tm_mon;   // month of year from 0 to 11
+//    int tm_year;  // year since 1900
+//    int tm_wday;  // days since sunday
+//    int tm_yday;  // days since January 1st
+//    int tm_isdst; // hours of daylight savings time
+// }
+// #include <conio.h>
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-typedef struct shop shop;
+#define MAX_SIZE 15
 
-struct shop
-{
-    char name[256];
-    char adress[256];
-    char items[256];
-    int discount;
-};
+int count = 0;
 
-void add_note(shop shop_q[], int n)
-{
+typedef struct buses bus;
 
-    char note[256];
-    printf("Enter name -> ");
-    fgets(note, 100, stdin);
-    note[strlen(note) - 1] = 0;
-    sprintf(shop_q[n].name, "%s", note);
+struct buses {
+  int number;           // номер автобуса
+  char destination[15]; // пункт назначения
+  float dep_time;       // departure time - время отбытия
+  float arr_time;       // arrival time - время прибытия
+  struct tm time_dep;
+  struct tm time_arr;
+} buses;
 
-    printf("Enter adress -> ");
-    fgets(note, 100, stdin);
-    note[strlen(note) - 1] = 0;
-    sprintf(shop_q[n].adress, "%s", note);
+int input(struct buses *);
+void print(struct buses *);
+void delet(struct buses *);
+void find(struct buses *);
 
-    printf("Enter item -> ");
-    fgets(note, 100, stdin);
-    note[strlen(note) - 1] = 0;
-    sprintf(shop_q[n].items, "%s", note);
-
-    printf("Enter discount -> ");
-    scanf("%d", &shop_q[n].discount);
-
-    fgets(note, 10, stdin);
+// Игнорирование символов
+void flush_input(void) {
+  char c;
+  while (scanf("%c", &c) == 1 && c != '\n')
+    ;
 }
 
-void all_notes(shop shop_q[], int n)
-{
-    for (int i = 0; i < n; i++)
-        printf("%d note: name: %s, adress: %s, item: %s, discount is: %d\n", i + 1, shop_q[i].name, shop_q[i].adress, shop_q[i].items, shop_q[i].discount);
+// запись структуры в файл
+void save(FILE *f, struct buses *bus) {
+  for (int i = 0; i < count; i++)
+    fprintf(f, "%d|%s|%d|%d|%d|%d\n", bus[i].number, bus[i].destination,
+            bus[i].time_dep.tm_hour, bus[i].time_dep.tm_min,
+            bus[i].time_arr.tm_hour, bus[i].time_arr.tm_min);
 }
 
-void del_note(shop shop_q[], int n, int del)
-{
-    for (int i = del; i < n - 1; i++)
-    {
-        shop temp = shop_q[i];
-        shop_q[i] = shop_q[i + 1];
-        shop_q[i + 1] = temp;
+// Получение записей с файла
+void load(FILE *f, struct buses *bus) {
+  char str[255];
+  char *istr;
+  while (fgets(str, 256, f) != NULL) {
+    istr = strtok(str, "|");
+    bus[count].number = atoi(istr);
+
+    istr = strtok(NULL, "|");
+    sprintf(bus[count].destination, "%s", istr);
+
+    istr = strtok(NULL, "|");
+    bus[count].time_dep.tm_hour = atoi(istr);
+
+    istr = strtok(NULL, "|");
+    bus[count].time_dep.tm_min = atoi(istr);
+
+    istr = strtok(NULL, "|");
+    bus[count].time_arr.tm_hour = atoi(istr);
+
+    istr = strtok(NULL, "|");
+    bus[count].time_arr.tm_min = atoi(istr);
+
+    count++;
+  }
+}
+
+int main() {
+  struct buses bus[100];
+  FILE *file = fopen("Buses.txt", "r");
+  int n;
+  char c;
+
+  while (1) {
+    printf("\n1. Добавить номер автобуса и его место назначения.\n");
+    printf("2. Вывести список автобусов.\n");
+    printf("3. Удалить автобусную базу данных.\n");
+    printf("4. Получить данные об автобусах, следующих в заданный город.\n");
+    printf("5  Загрузить базу данных из файла.\n");
+    printf("6  Сохранить базу данных из файла.\n");
+    printf("7. Выход.\n");
+    // c = getchar();
+    // Получение запроса
+    printf("--> ");
+    scanf("%d", &n);
+    if (n == 1) {
+      // system("cls");
+      system("clear");
+      int k = input(bus);
+    } else if (n == 2) {
+      // system("cls");
+      system("clear");
+      print(bus);
+    } else if (n == 3)
+
+      delet(bus);
+
+    else if (n == 4) {
+      // system("cls");
+      system("clear");
+      find(bus);
+    } else if (n == 5) {
+      // system("cls");
+      system("clear");
+      load(file, bus);
+      fclose(file);
+    } else if (n == 6) {
+      // system("cls");
+      system("clear");
+      file = fopen("Buses.txt", "w");
+      save(file, bus);
+      fclose(file);
+    } else if (n == 7)
+
+      return 0;
+  }
+}
+//Добавление
+int input(struct buses *bus) {
+  printf("\nДобавить номер автобуса и его место назначения \n");
+  for (int i = count; i < count + 1; i++) {
+    scanf("%d %s", &bus[i].number, bus[i].destination);
+
+    printf("Пример: Часы.Минуты\n");
+    printf("Время отправления -->");
+    int hour, min;
+  a:
+    scanf("%d.%d", &hour, &min);
+    if ((24 < hour) || (hour < 0) || (59 < min) || (min < 0)) {
+      printf("Неверное значение.\n Повторите попытку.\n");
+      printf("Время отправления -->");
+      goto a;
+    }
+    bus[i].time_dep.tm_hour = hour;
+    bus[i].time_dep.tm_min = min;
+  b:
+    printf("Время прибытия -->");
+    scanf("%d.%d", &hour, &min);
+    if ((24 < hour) || (hour < 0) || (59 < min) || (min < 0)) {
+      printf("Неверное значение.\n Повторите попытку.\n");
+      printf("Время прибытия -->");
+      goto b;
+    }
+    bus[i].time_arr.tm_hour = hour;
+    bus[i].time_arr.tm_min = min;
+  }
+  count++;
+}
+
+//Вывод информации о существующих
+void print(struct buses bus[]) {
+  if (!count)
+    printf("Пустой массив\n");
+  else
+    for (int i = 0; i < count; i++) {
+      char d_time[15];
+      char a_time[15];
+      strftime(d_time, 15, "%H.%M", &bus[i].time_dep);
+      strftime(a_time, 15, "%H.%M", &bus[i].time_arr);
+      printf("[%d]Номер автобуса: %d, пункт назначения: %s, время отправления: %s, время прибытия: %s\n",
+             i + 1, bus[i].number, bus[i].destination,
+             // bus[i].dep_time, bus[i].arr_time);
+             d_time, a_time);
     }
 }
 
-int file_input(FILE *f, shop sp[])
-{
-    char str[256];
-    char *istr;
-    int count = 0;
-    while (fgets(str, 256, f) != NULL)
-    {
-        istr = strtok(str, ";");
-        sprintf(sp[count].name, "%s", istr);
-        istr = strtok(NULL, ";");
-        sprintf(sp[count].adress, "%s", istr);
-        istr = strtok(NULL, ";");
-        sprintf(sp[count].items, "%s", istr);
-        istr = strtok(NULL, ";");
-        sp[count].discount = atoi(istr);
-        istr = strtok(NULL, ";");
-        count++;
-    }
-    return count;
+//Удаление
+void delet(struct buses *bus) {
+  if (count) {
+    int i, num;
+
+    printf("Введите порядковый номер автобуса, который вы хотите удалить: ");
+    scanf("%d", &num);
+
+    for (i = num; i < count + 1; ++i)
+      bus[i - 1] = bus[i];
+
+    --count;
+  } else {
+    system("cls");
+    printf("Массив пуст!\n");
+  }
 }
-
-void file_output(FILE *f, shop sp[], int count)
-{
-    for (int i = 0; i < count; i++)
-        fprintf(f, "%s;%s;%s;%d;%d;%d;%d\n", sp[i].name, sp[i].adress, sp[i].items, sp[i].discount);
-}
-
-int main()
-{
-    int count = 0;
-    int del;
-    char *query = (char *)malloc(sizeof(char) * 100);
-    struct shop shop_q[50];
-    FILE *file = fopen("input.txt", "r");
-    count = file_input(file, shop_q);
-    fclose(file);
-
-    printf("Enter \"q\" if you watn to quit\n");
-    printf("Enter \"add\" if you want to add a new note\n");
-    printf("Enter \"del\" and then number of note if you want to delete a note\n");
-    printf("Enter \"ls\" if you want to see all notes\n");
-
-    while (strcmp(query, "q"))
-    {
-        printf("-> ");
-        fgets(query, 100, stdin);
-        query[strlen(query) - 1] = 0;
-        if (!strcmp(query, "add"))
-        {
-            add_note(shop_q, count);
-            count++;
-        }
-        else if (!strcmp(query, "ls"))
-            all_notes(shop_q, count);
-        else if (!strcmp(query, "del"))
-        {
-            printf("Enter a number of note you want to delete -> ");
-            scanf("%d", &del);
-            fgets(query, 10, stdin);
-            del_note(shop_q, count, del - 1);
-            count--;
-        }
+//Поиск
+void find(struct buses *bus) {
+  char c[15];
+  int temp = 0;
+  printf("Введите название города\n");
+  scanf("%s", c);
+  for (int i = 0; i < count; i++) {
+    // if (bus[i].destination == c)
+    if (!strcmp(bus[i].destination, c)) {
+      printf("[%d]Номер автобуса: %d, пункт назначения: %s, время отправления: %0.2f, время прибытия %0.2f\n",
+             i + 1, bus[i].number, bus[i].destination, bus[i].dep_time,
+             bus[i].arr_time);
+      temp = temp + 1;
     }
-    file = fopen("input.txt", "w");
-    file_output(file, shop_q, count);
-    fclose(file);
-    free(query);
-    return 0;
+  }
+  if (!temp)
+    printf("Рейсов в этот город нет\n ");
 }
